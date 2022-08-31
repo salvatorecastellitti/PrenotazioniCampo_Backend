@@ -1,5 +1,8 @@
 package com.prenotazionicampo_backend.models;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -31,6 +34,10 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Reservation> reservation;
     public User() {
     }
     public User(String username, String email, String password) {
@@ -38,6 +45,16 @@ public class User {
         this.email = email;
         this.password = password;
     }
+
+    public User(Long id, String username, String email, String password, Set<Role> roles, List<Reservation> reservation) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.roles = roles;
+        this.reservation = reservation;
+    }
+
     public Long getId() {
         return id;
     }
@@ -67,5 +84,13 @@ public class User {
     }
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public List<Reservation> getReservation() {
+        return reservation;
+    }
+
+    public void setReservation(List<Reservation> reservation) {
+        this.reservation = reservation;
     }
 }
