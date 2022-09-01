@@ -17,6 +17,12 @@ Per l'asino di Alex, segui le istruzioni per dockerizzare il back end.
   docker exec -it <container-id> bash
   mysql -usa -p1234
   show databases;
+  
+4.5 Inserire i ruoli nel db
+  use prenotazioni;
+  INSERT INTO roles(name) VALUES('ROLE_USER');
+  INSERT INTO roles(name) VALUES('ROLE_MODERATOR');
+  INSERT INTO roles(name) VALUES('ROLE_ADMIN');
 
 5. Buildare il progetto BE, cosi avrai il pacchetto .jar (io uso intellij tu non lo so 😱 )
 
