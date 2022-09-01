@@ -25,7 +25,7 @@ Per l'asino di Alex, segui le istruzioni per dockerizzare il back end.
   docker build -t prenotazioni-pt .
   
 7. Avviare il container sullo stesso network del db
-  docker run --network prenotazioni-pt --name prenotazioniBE -p 8080:8080 -d prenotazioni 
+  docker run --network prenotazioni-pt --name prenotazioniBE -p 8080:8080 -d prenotazioni-pt
 
 🥳 Congratulazioni, ora puoi fare quello che vuoi con le api, sempre chiamandole da http://localhost:8080/ 🥳
 
