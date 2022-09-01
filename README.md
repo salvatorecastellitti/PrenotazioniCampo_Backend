@@ -14,7 +14,7 @@ Per l'asino di Alex, segui le istruzioni per dockerizzare il back end.</br>
   docker run --name mysqldb --network prenotazioni-pt -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=prenotazioni -e MYSQL_USER=sa -e MYSQL_PASSWORD=1234 -d mysql:5.7</br>
 
 4. [opzionale] controllare il database se è creato</br>
-  docker exec -it <container-id> bash</br>
+  docker exec -it "container-id" bash</br>
   mysql -usa -p1234</br>
   show databases;</br>
   
@@ -26,13 +26,13 @@ Per l'asino di Alex, segui le istruzioni per dockerizzare il back end.</br>
 
 5. Buildare il progetto BE, cosi avrai il pacchetto .jar (io uso intellij tu non lo so 😱 )</br>
 
-6. Buildare il docker file per avere l'immagine del BE\n
-  [NB devi andare dentro alla cartella del progetto, al livello del dockerfile]\n
-  docker build -t prenotazioni-pt . \n
+6. Buildare il docker file per avere l'immagine del BE\</br>
+  [NB devi andare dentro alla cartella del progetto, al livello del dockerfile]</br>
+  docker build -t prenotazioni-pt . </br>
   
-7. Avviare il container sullo stesso network del db\n
-  docker run --network prenotazioni-pt --name prenotazioniBE -p 8080:8080 -d prenotazioni-pt\n
+7. Avviare il container sullo stesso network del db</br>
+  docker run --network prenotazioni-pt --name prenotazioniBE -p 8080:8080 -d prenotazioni-pt</br>
 
-🥳 Congratulazioni, ora puoi fare quello che vuoi con le api, sempre chiamandole da http://localhost:8080/ 🥳\n
+🥳 Congratulazioni, ora puoi fare quello che vuoi con le api, sempre chiamandole da http://localhost:8080/ 🥳</br>
 
-Per qualsiasi dubbio o altro, contattarmi preferibilmente quando non dormo\n
+Per qualsiasi dubbio o altro, contattarmi preferibilmente quando non dormo</br>
