@@ -3,8 +3,8 @@ Backend for reservation sport's field
 
 Per l'asino di Alex, segui le istruzioni per dockerizzare il back end.</br>
 
-1. Pull dell'immagine di mysql da docker hub\n
-  docker pull mysql:5.7\n
+1. Pull dell'immagine di mysql da docker hub</br>
+  docker pull mysql:5.7</br>
   [se ti da errore per architettura arm] docker pull --platform linux/x86_64 mysql:5.7</br>
 
 2. Creare una docker network per la comunicazione tra spring e mysql</br>
