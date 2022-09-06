@@ -36,7 +36,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/update")
+    @PostMapping("/update")
     public User updateUser(@RequestBody User user){
         return userService.updateUser(user);
     }

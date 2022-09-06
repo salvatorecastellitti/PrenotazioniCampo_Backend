@@ -29,4 +29,9 @@ public class ReservationServiceImpl implements ReservationService {
     public Optional<Reservation> findById(Long id) {
         return reservationRepository.findById(id);
     }
+
+    @Override
+    public Reservation updateReservation(Reservation reservation) {
+        return reservationRepository.save(reservation);
+    }
 }

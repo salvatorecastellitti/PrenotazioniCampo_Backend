@@ -2,6 +2,7 @@ package com.prenotazionicampo_backend.controllers;
 
 import com.prenotazionicampo_backend.exception.ResourceNotFoundException;
 import com.prenotazionicampo_backend.models.Field;
+import com.prenotazionicampo_backend.models.User;
 import com.prenotazionicampo_backend.repository.FieldRepository;
 import com.prenotazionicampo_backend.security.services.FieldService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,11 @@ public class FieldController {
     @PostMapping("/add")
     public Field createField(@RequestBody Field field){
         return fieldService.saveField(field);
+    }
+
+    @PostMapping("/update")
+    public Field updateUser(@RequestBody Field field){
+        return fieldService.updateField(field);
     }
 
     @GetMapping("/get/{id}")
