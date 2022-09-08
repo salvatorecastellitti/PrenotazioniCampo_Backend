@@ -7,6 +7,7 @@ import com.prenotazionicampo_backend.repository.FieldRepository;
 import com.prenotazionicampo_backend.security.services.FieldService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -23,27 +24,32 @@ public class FieldController {
     @Autowired
     private FieldRepository fieldRepository;
     @GetMapping("/list")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public List<Field> getListFields(){
         return fieldService.findAll();
     }
 
     @PostMapping("/add")
+    @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
     public Field createField(@RequestBody Field field){
         return fieldService.saveField(field);
     }
 
     @PostMapping("/update")
+    @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
     public Field updateUser(@RequestBody Field field){
         return fieldService.updateField(field);
     }
 
     @GetMapping("/get/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public ResponseEntity<Field> getFieldById(@PathVariable Long id){
         Field field = fieldService.findById(id).orElseThrow(()-> new ResourceNotFoundException("Field not found with id: "+id));
         return ResponseEntity.ok(field);
     }
 
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
     public ResponseEntity<Map<String, Boolean>> deleteField(@PathVariable Long id){
         Field field = fieldService.findById(id).orElseThrow(()-> new ResourceNotFoundException("Field not found with id: "+id));
         fieldRepository.delete(field);

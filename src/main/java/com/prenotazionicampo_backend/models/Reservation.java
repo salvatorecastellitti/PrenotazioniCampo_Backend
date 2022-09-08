@@ -1,10 +1,12 @@
 package com.prenotazionicampo_backend.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Entity
@@ -22,13 +24,23 @@ public class Reservation {
     @NotBlank
     private Date endDate;
 
-    @ManyToOne
-    @JoinColumn(name = "user", referencedColumnName = "id")
+    @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "user", insertable = false, updatable = false)
+    @JsonIgnore
+    @NotNull
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "field", referencedColumnName = "id")
+    @Column(name = "user")
+    private Long userId;
+
+    @ManyToOne(targetEntity = Field.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "field", insertable = false, updatable = false)
+    @NotNull
+    @JsonIgnore
     private Field field;
+
+    @Column(name = "field")
+    private Long fieldId;
 
     public Reservation() {
     }
@@ -39,6 +51,16 @@ public class Reservation {
         this.endDate = endDate;
         this.user = user;
         this.field = field;
+    }
+
+    public Reservation(Long id, Date startDate, Date endDate, User user, Long userId, Field field, Long fieldId) {
+        this.id = id;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.user = user;
+        this.userId = userId;
+        this.field = field;
+        this.fieldId = fieldId;
     }
 
     public Long getId() {
@@ -79,5 +101,21 @@ public class Reservation {
 
     public void setField(Field field) {
         this.field = field;
+    }
+
+    public Long getFieldId() {
+        return fieldId;
+    }
+
+    public void setFieldId(Long fieldId) {
+        this.fieldId = fieldId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }

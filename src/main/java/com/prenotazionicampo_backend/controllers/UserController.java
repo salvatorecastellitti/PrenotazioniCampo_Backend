@@ -6,6 +6,7 @@ import com.prenotazionicampo_backend.repository.UserRepository;
 import com.prenotazionicampo_backend.security.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -22,11 +23,20 @@ public class UserController {
     private UserRepository userRepository;
 
     @GetMapping("/list")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public List<User> getAllUsers(){
         return userService.findAll();
     }
 
+    @GetMapping("/add")
+    @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
+    public ResponseEntity<?> addUser(User user){
+        userService.saveUser(user);
+        return ResponseEntity.ok("User added correctly, id: "+user.getId());
+    }
+
     @DeleteMapping("delete/{id}")
+    @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
     public ResponseEntity<Map<String, Boolean>> deleteUser(@PathVariable Long id){
         User user = userService.findById(id).orElseThrow(()-> new ResourceNotFoundException("User not exist with id: " + id));
 
@@ -37,11 +47,13 @@ public class UserController {
     }
 
     @PostMapping("/update")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public User updateUser(@RequestBody User user){
         return userService.updateUser(user);
     }
 
     @GetMapping("/get/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public ResponseEntity<User> getUserById(@PathVariable Long id){
         User user = userService.findById(id).orElseThrow(()-> new ResourceNotFoundException("User not exist with id: " + id));
         return ResponseEntity.ok(user);

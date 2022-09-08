@@ -6,6 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,6 +22,12 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public List<Reservation> getAll() {
         return reservationRepository.findAll();
+    }
+
+    @Override
+    public List<Reservation> getReservationByDateAndField(Date sDate, Date eDate, Long fieldId) {
+
+        return reservationRepository.findReservationByDateAndField(sDate, eDate, fieldId);
     }
 
     @Override
