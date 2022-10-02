@@ -13,7 +13,8 @@ import javax.validation.constraints.Size;
 @Table(name = "users",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = "username"),
-                @UniqueConstraint(columnNames = "email")
+                @UniqueConstraint(columnNames = "email"),
+                @UniqueConstraint(columnNames = "phone")
         })
 public class User {
     @Id
@@ -29,6 +30,11 @@ public class User {
     @NotBlank
     @Size(max = 120)
     private String password;
+
+    @NotBlank
+    @Size(max = 15)
+    private String phone;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(	name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -51,6 +57,16 @@ public class User {
         this.username = username;
         this.email = email;
         this.password = password;
+        this.roles = roles;
+        this.reservation = reservation;
+    }
+
+    public User(Long id, String username, String email, String password, String phone, Set<Role> roles, List<Reservation> reservation) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.phone = phone;
         this.roles = roles;
         this.reservation = reservation;
     }
@@ -79,6 +95,15 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
     public Set<Role> getRoles() {
         return roles;
     }

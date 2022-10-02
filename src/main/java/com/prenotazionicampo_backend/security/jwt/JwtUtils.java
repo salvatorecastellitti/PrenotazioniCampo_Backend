@@ -18,7 +18,7 @@ public class JwtUtils {
     private int jwtExpirationMs;
     public String generateJwtToken(Authentication authentication) {
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-        return Jwts.builder()
+        return Jwts.builder().setId((userPrincipal.getId().toString()))
                 .setSubject((userPrincipal.getUsername()))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
@@ -27,6 +27,10 @@ public class JwtUtils {
     }
     public String getUserNameFromJwtToken(String token) {
         return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
+    }
+
+    public String getIdNameFromJwtToken(String token) {
+        return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getId();
     }
     public boolean validateJwtToken(String authToken) {
         try {

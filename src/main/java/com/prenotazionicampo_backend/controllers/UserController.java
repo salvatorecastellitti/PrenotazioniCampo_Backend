@@ -3,12 +3,14 @@ package com.prenotazionicampo_backend.controllers;
 import com.prenotazionicampo_backend.exception.ResourceNotFoundException;
 import com.prenotazionicampo_backend.models.User;
 import com.prenotazionicampo_backend.repository.UserRepository;
+import com.prenotazionicampo_backend.security.jwt.JwtUtils;
 import com.prenotazionicampo_backend.security.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,10 +24,19 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private JwtUtils jwtUtils;
+
     @GetMapping("/list")
-    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
     public List<User> getAllUsers(){
         return userService.findAll();
+    }
+
+    @GetMapping("/listOther")
+    public String getOtherUser(HttpServletRequest request){
+        String token = request.getHeader("Authorization").replace("Bearer ", "");
+        return jwtUtils.getIdNameFromJwtToken(token);
     }
 
     @GetMapping("/add")
