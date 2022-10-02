@@ -5,15 +5,29 @@ import com.prenotazionicampo_backend.models.User;
 import com.prenotazionicampo_backend.repository.UserRepository;
 import com.prenotazionicampo_backend.security.jwt.JwtUtils;
 import com.prenotazionicampo_backend.security.services.UserService;
+import com.prenotazionicampo_backend.util.FileUploadUtil;
+import org.apache.commons.io.IOUtils;
+import org.apache.tomcat.util.http.fileupload.FileUpload;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.activation.FileTypeMap;
+import javax.imageio.IIOException;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.io.File;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/users/")
@@ -70,4 +84,33 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    @PostMapping("/test/uploadPhoto")
+    public ResponseEntity<?> SavePhoto(@RequestParam("image")MultipartFile multipartFile) throws IOException{
+        String filename = StringUtils.cleanPath(multipartFile.getOriginalFilename());
+        User user = new User();
+        user.setPhotos(filename);
+        user.setUsername("photo");
+        user.setEmail("photo@mail");
+        user.setPhone("3949394949");
+        user.setPassword("1234");
+        userService.saveUser(user);
+
+
+        String uploadDir = "/etc/testSpring/user-photos/1";
+
+        FileUploadUtil.saveFile(uploadDir, filename, multipartFile);
+        return ResponseEntity.ok("File uploaded successfully.");
+
+
+    }
+
+    @GetMapping( "/test/display")
+    public ResponseEntity<byte[]> testphoto() throws IOException{
+        User user = userService.findById(9L).orElseThrow(()-> new ResourceNotFoundException("User not exist with id: "));
+        //InputStream in = getClass().getResourceAsStream("/etc/testSpring/user-photos/1" + user.getPhotos());
+        //return IOUtils.toByteArray(in);
+
+        File img = new File("/etc/testSpring/user-photos/1/" + user.getPhotos());
+        return ResponseEntity.ok().contentType(MediaType.valueOf(FileTypeMap.getDefaultFileTypeMap().getContentType(img))).body(Files.readAllBytes(img.toPath()));
+    }
 }

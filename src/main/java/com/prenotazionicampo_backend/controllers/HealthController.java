@@ -1,6 +1,7 @@
 package com.prenotazionicampo_backend.controllers;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,7 +17,7 @@ public class HealthController {
     @GetMapping("/status")
     public ResponseEntity<Map<String, String>> getStatusServer (){
         Map<String,String> response = new HashMap<>();
-        response.put("Status:", "UP");
+        response.put("Status:", "okokokok");
         return ResponseEntity.ok(response);
     }
 }

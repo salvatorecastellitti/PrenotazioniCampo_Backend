@@ -35,6 +35,9 @@ public class User {
     @Size(max = 15)
     private String phone;
 
+    @Size(max = 64)
+    private String photos;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(	name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -61,12 +64,13 @@ public class User {
         this.reservation = reservation;
     }
 
-    public User(Long id, String username, String email, String password, String phone, Set<Role> roles, List<Reservation> reservation) {
+    public User(Long id, String username, String email, String password, String phone, String photos, Set<Role> roles, List<Reservation> reservation) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.password = password;
         this.phone = phone;
+        this.photos = photos;
         this.roles = roles;
         this.reservation = reservation;
     }
@@ -109,6 +113,14 @@ public class User {
     }
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public String getPhotos() {
+        return photos;
+    }
+
+    public void setPhotos(String photos) {
+        this.photos = photos;
     }
 
     public List<Reservation> getReservation() {
