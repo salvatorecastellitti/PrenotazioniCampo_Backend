@@ -1,5 +1,8 @@
 package com.prenotazionicampo_backend.models;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -10,7 +13,8 @@ import javax.validation.constraints.Size;
 @Table(name = "users",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = "username"),
-                @UniqueConstraint(columnNames = "email")
+                @UniqueConstraint(columnNames = "email"),
+                @UniqueConstraint(columnNames = "phone")
         })
 public class User {
     @Id
@@ -26,11 +30,20 @@ public class User {
     @NotBlank
     @Size(max = 120)
     private String password;
+
+    @NotBlank
+    @Size(max = 15)
+    private String phone;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(	name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Reservation> reservation;
     public User() {
     }
     public User(String username, String email, String password) {
@@ -38,6 +51,26 @@ public class User {
         this.email = email;
         this.password = password;
     }
+
+    public User(Long id, String username, String email, String password, Set<Role> roles, List<Reservation> reservation) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.roles = roles;
+        this.reservation = reservation;
+    }
+
+    public User(Long id, String username, String email, String password, String phone, Set<Role> roles, List<Reservation> reservation) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.phone = phone;
+        this.roles = roles;
+        this.reservation = reservation;
+    }
+
     public Long getId() {
         return id;
     }
@@ -62,10 +95,27 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
     public Set<Role> getRoles() {
         return roles;
     }
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public List<Reservation> getReservation() {
+        return reservation;
+    }
+
+    public void setReservation(List<Reservation> reservation) {
+        this.reservation = reservation;
     }
 }
