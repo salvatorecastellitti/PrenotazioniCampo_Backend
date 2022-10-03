@@ -36,7 +36,10 @@ public class User {
     private String phone;
 
     @Size(max = 64)
+    @JsonIgnore
     private String photos;
+
+    private byte[] photoMedia;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(	name = "user_roles",
@@ -64,15 +67,19 @@ public class User {
         this.reservation = reservation;
     }
 
-    public User(Long id, String username, String email, String password, String phone, String photos, Set<Role> roles, List<Reservation> reservation) {
+    public User(Long id, String username, String email, String password, String phone, String photos, byte[] photoMedia, Set<Role> roles, List<Reservation> reservation) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.password = password;
         this.phone = phone;
         this.photos = photos;
+        this.photoMedia = photoMedia;
         this.roles = roles;
         this.reservation = reservation;
+    }
+
+    public User(String username, String email, String password, String phone) {
     }
 
     public Long getId() {
@@ -119,8 +126,18 @@ public class User {
         return photos;
     }
 
+    public byte[] getPhotoMedia() {
+        return photoMedia;
+    }
+
+    public void setPhotoMedia(byte[] photoMedia) {
+        this.photoMedia = photoMedia;
+    }
+
     public void setPhotos(String photos) {
         this.photos = photos;
+
+
     }
 
     public List<Reservation> getReservation() {

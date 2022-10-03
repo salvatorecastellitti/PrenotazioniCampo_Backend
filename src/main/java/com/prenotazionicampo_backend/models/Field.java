@@ -23,6 +23,12 @@ public class Field {
     @Size(max = 20)
     private String address;
 
+    @Size(max = 64)
+    @JsonIgnore
+    private String photos;
+
+    private byte[] photoMedia;
+
     @OneToMany(mappedBy = "field", cascade = CascadeType.ALL)
     @JsonIgnore
     private Set<Reservation> reservation;
@@ -35,6 +41,16 @@ public class Field {
         this.name = name;
         this.country = country;
         this.address = address;
+        this.reservation = reservation;
+    }
+
+    public Field(Long id, String name, String country, String address, String photos, byte[] photoMedia, Set<Reservation> reservation) {
+        this.id = id;
+        this.name = name;
+        this.country = country;
+        this.address = address;
+        this.photos = photos;
+        this.photoMedia = photoMedia;
         this.reservation = reservation;
     }
 
@@ -68,6 +84,22 @@ public class Field {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getPhotos() {
+        return photos;
+    }
+
+    public void setPhotos(String photos) {
+        this.photos = photos;
+    }
+
+    public byte[] getPhotoMedia() {
+        return photoMedia;
+    }
+
+    public void setPhotoMedia(byte[] photoMedia) {
+        this.photoMedia = photoMedia;
     }
 
     public Set<Reservation> getReservation() {

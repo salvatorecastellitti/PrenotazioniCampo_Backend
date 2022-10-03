@@ -14,6 +14,8 @@ public interface UserService {
 
     User updateUser(User user);
 
+    List<User> findOtherUser(Long id);
+
 
 
 }
