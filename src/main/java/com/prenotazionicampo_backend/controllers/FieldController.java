@@ -56,7 +56,7 @@ public class FieldController {
             String uploadDir = "/etc/testSpring/field-photos/"+field.getId();
             FileUploadUtil.saveFile(uploadDir, filename, multipartFile);
         }catch (Exception e){
-            return ResponseEntity.badRequest().body(new MessageResponse("Impossibile salvate la foto"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Impossibile salvare la foto"));
         }
         fieldService.saveField(field);
         return ResponseEntity.ok("Foto aggiunta correttamente");
