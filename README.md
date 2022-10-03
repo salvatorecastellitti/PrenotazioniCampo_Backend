@@ -30,8 +30,12 @@ Per l'asino di Alex, segui le istruzioni per dockerizzare il back end.</br>
   [NB devi andare dentro alla cartella del progetto, al livello del dockerfile]</br>
   docker build -t prenotazioni-pt . </br>
   
-7. Avviare il container sullo stesso network del db</br>
-  docker run --network prenotazioni-pt --name prenotazioniBE -p 8080:8080 -d prenotazioni-pt</br>
+7. Creare il volume per salvare le immagini:</br>
+  docker volume create testSpring</br>
+  
+9. Avviare il container sullo stesso network del db e sul volume creato per le immagini</br>
+  docker run --network prenotazioni-pt --name prenotazioniBE --mount source=testSpring,target=/etc/testSpring -p 8080:8080 -d prenotazioni-pt
+</br>
 
 🥳 Congratulazioni, ora puoi fare quello che vuoi con le api, sempre chiamandole da http://localhost:8080/ 🥳</br>
 
