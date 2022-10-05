@@ -90,6 +90,12 @@ public class UserController {
         if(profileHolder.getEmail()!=null){
             user.setEmail(profileHolder.getEmail());
         }
+        if(profileHolder.getNome()!=null){
+            user.setNome(profileHolder.getNome());
+        }
+        if(profileHolder.getCognome()!=null){
+            user.setCognome(profileHolder.getCognome());
+        }
 
         userService.saveUser(user);
         return ResponseEntity.ok("ok");

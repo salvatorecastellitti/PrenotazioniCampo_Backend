@@ -91,7 +91,13 @@ public class User {
     public User(String username, String email, String password, String phone) {
     }
 
-    public User(String username, String email, String encode, String nome, String cognome) {
+    public User(String username, String email, String password, String nome, String cognome, String phone) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.nome = nome;
+        this.cognome = cognome;
+        this.phone = phone;
     }
 
     public Long getId() {

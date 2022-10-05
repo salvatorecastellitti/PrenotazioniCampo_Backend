@@ -23,6 +23,10 @@ public class SignupRequest {
     private String cognome;
 
     @NotBlank
+    @Size(min = 10, max = 15)
+    private String phone;
+
+    @NotBlank
     @Size(min = 6, max = 40)
     private String password;
 
@@ -68,6 +72,14 @@ public class SignupRequest {
 
     public String getCognome() {
         return cognome;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public void setCognome(String cognome) {
