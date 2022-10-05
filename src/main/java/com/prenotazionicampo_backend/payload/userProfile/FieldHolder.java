@@ -5,11 +5,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ProfileHolder {
+public class FieldHolder {
     String id;
-    String username;
-    String email;
-    String phone;
-    String nome;
-    String cognome;
+    String name;
+    String country;
+    String address;
 }

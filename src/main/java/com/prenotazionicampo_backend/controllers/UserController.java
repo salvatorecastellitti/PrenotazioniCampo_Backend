@@ -54,10 +54,9 @@ public class UserController {
 
     @GetMapping("/add")
     @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<?> addUser(@ModelAttribute ProfileHolder profileHolder){
-        User user = profileHolder.getUser();
+    public ResponseEntity<?> addUser(@RequestBody User user){
         userService.saveUser(user);
-        return ResponseEntity.ok("Utente aggiunto correttamente: "+user.getId());
+        return ResponseEntity.ok(new MessageResponse("Utente aggiunto correttamente: " +user.getId()));
     }
 
     @DeleteMapping("delete/{id}")
@@ -68,20 +67,50 @@ public class UserController {
         return ResponseEntity.ok(new MessageResponse("Utente eliminato correttamente"));
     }
 
+    //questo non va bene, perche io devo prendere solo i campi mandati da alex, altrimenti perdo i campi con @JsonIgnore
+    //https://stackoverflow.com/questions/42693643/updating-user-info-spring-boot
     @PostMapping("/update")
+    @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
+    public ResponseEntity<?> update(@RequestBody ProfileHolder profileHolder,HttpServletRequest request){
+        User user;
+        if(profileHolder.getId() == null || profileHolder.getId().isEmpty()){
+            String token = request.getHeader("Authorization").replace("Bearer ", "");
+            String id = jwtUtils.getIdNameFromJwtToken(token);
+            user = userService.findById(Long.valueOf(id)).orElseThrow(()->new ResourceNotFoundException("User not exist with id: " + id));
+
+        }else{
+            user = userService.findById(Long.valueOf(profileHolder.getId())).orElseThrow(() -> new ResourceNotFoundException("User not exist with id: " + profileHolder.getId()));
+        }
+        if(profileHolder.getUsername()!=null){
+            user.setUsername(profileHolder.getUsername());
+        }
+        if(profileHolder.getPhone()!=null){
+            user.setPhone(profileHolder.getPhone());
+        }
+        if(profileHolder.getEmail()!=null){
+            user.setEmail(profileHolder.getEmail());
+        }
+
+        userService.saveUser(user);
+        return ResponseEntity.ok("ok");
+    }
+
+    @PostMapping("/changePhoto")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<?> updateUserPhoto(@ModelAttribute ProfileHolder profileHolder, HttpServletRequest request) throws IOException {
-        User user = profileHolder.getUser();
+    public ResponseEntity<?> changeUserPhoto(@RequestParam("image") MultipartFile multipartFile, HttpServletRequest request) throws IOException {
 
-        //check if the user changed photo profile
-        if (profileHolder.getMultipartFile() != null || profileHolder.getMultipartFile().isEmpty()){
-            MultipartFile multipartFile = profileHolder.getMultipartFile() ;
-            String filename = StringUtils.cleanPath(multipartFile.getOriginalFilename());
-            user.setPhotos(filename);
+        String token = request.getHeader("Authorization").replace("Bearer ", "");
+        String id = jwtUtils.getIdNameFromJwtToken(token);
+        User user = userService.findById(Long.valueOf(id)).orElseThrow(()->new ResourceNotFoundException("User not exist with id: " + id));
 
+        String filename = StringUtils.cleanPath(multipartFile.getOriginalFilename());
+        user.setPhotos(filename);
+
+        try{
             String uploadDir = "/etc/testSpring/user-photos/"+ user.getId();
-
             FileUploadUtil.saveFile(uploadDir, filename, multipartFile);
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(new MessageResponse("Impossibile salvare la foto"));
         }
 
         try{
@@ -97,10 +126,10 @@ public class UserController {
     public ResponseEntity<?> changePassword(@RequestBody ChangePwd changePwd, HttpServletRequest request){
         String token = request.getHeader("Authorization").replace("Bearer ", "");
         String id = jwtUtils.getIdNameFromJwtToken(token);
-        String oldPwd = encoder.encode(changePwd.getOldPassword());
         User user = userService.findById(Long.valueOf(id)).orElseThrow(()->new ResourceNotFoundException("User not exist with id: " + id));
-        if (oldPwd.equals(user.getPassword())){
-            user.setPassword(changePwd.getNewPassword());
+        if (encoder.matches(changePwd.getOldPassword(),user.getPassword())){
+
+            user.setPassword(encoder.encode(changePwd.getNewPassword()));
         }else{
             return ResponseEntity.badRequest().body(new MessageResponse("La vecchia password non corrisponde a quella attualmente in uso"));
         }

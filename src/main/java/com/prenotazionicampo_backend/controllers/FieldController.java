@@ -3,6 +3,7 @@ package com.prenotazionicampo_backend.controllers;
 import com.prenotazionicampo_backend.exception.ResourceNotFoundException;
 import com.prenotazionicampo_backend.models.Field;
 import com.prenotazionicampo_backend.payload.response.MessageResponse;
+import com.prenotazionicampo_backend.payload.userProfile.FieldHolder;
 import com.prenotazionicampo_backend.repository.FieldRepository;
 import com.prenotazionicampo_backend.security.services.FieldService;
 import com.prenotazionicampo_backend.util.FileUploadUtil;
@@ -41,7 +42,17 @@ public class FieldController {
 
     @PostMapping("/update")
     @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
-    public Field updateUser(@RequestBody Field field){
+    public Field updateUser(@RequestBody FieldHolder fieldHolder){
+        Field field = fieldService.findById(Long.valueOf(fieldHolder.getId())).orElseThrow(()-> new ResourceNotFoundException("Field not found with id: "+fieldHolder.getId()));
+        if (fieldHolder.getCountry()!= null){
+            field.setCountry(fieldHolder.getCountry());
+        }
+        if(fieldHolder.getAddress()!=null){
+            field.setAddress(field.getAddress());
+        }
+        if(fieldHolder.getName()!=null){
+            field.setName(fieldHolder.getName());
+        }
         return fieldService.updateField(field);
     }
 
@@ -49,7 +60,7 @@ public class FieldController {
     @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
     public ResponseEntity<?> changePhoto(@RequestParam("image") MultipartFile multipartFile, @PathVariable Long id) throws IOException {
         String filename = StringUtils.cleanPath(multipartFile.getOriginalFilename());
-        Field field = fieldService.findById(id).orElseThrow(()-> new ResourceNotFoundException("Field not found with id: "+id));
+        Field field = fieldService.findById(Long.valueOf(id)).orElseThrow(()-> new ResourceNotFoundException("Field not found with id: "+id));
         field.setPhotos(filename);
 
         try{
@@ -58,8 +69,14 @@ public class FieldController {
         }catch (Exception e){
             return ResponseEntity.badRequest().body(new MessageResponse("Impossibile salvare la foto"));
         }
-        fieldService.saveField(field);
-        return ResponseEntity.ok("Foto aggiunta correttamente");
+        try{
+            fieldService.saveField(field);
+            return ResponseEntity.ok(new MessageResponse("Foto aggiunta correttamente"));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(new MessageResponse("Impossibile aggiornare la foto"));
+        }
+
+
     }
     @GetMapping("/get/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")

@@ -15,6 +15,12 @@ public class SignupRequest {
     private String email;
 
     private Set<String> role;
+    @NotBlank
+    @Size(min = 3, max = 20)
+    private String nome;
+    @NotBlank
+    @Size(min = 3, max = 20)
+    private String cognome;
 
     @NotBlank
     @Size(min = 6, max = 40)
@@ -50,5 +56,21 @@ public class SignupRequest {
 
     public void setRole(Set<String> role) {
         this.role = role;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public String getCognome() {
+        return cognome;
+    }
+
+    public void setCognome(String cognome) {
+        this.cognome = cognome;
     }
 }

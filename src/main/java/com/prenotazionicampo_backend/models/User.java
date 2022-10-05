@@ -32,6 +32,13 @@ public class User {
     private String password;
 
     @NotBlank
+    @Size(max = 20)
+    private String nome;
+
+    @NotBlank
+    @Size(max = 20)
+    private String cognome;
+    @NotBlank
     @Size(max = 15)
     private String phone;
 
@@ -67,11 +74,13 @@ public class User {
         this.reservation = reservation;
     }
 
-    public User(Long id, String username, String email, String password, String phone, String photos, byte[] photoMedia, Set<Role> roles, List<Reservation> reservation) {
+    public User(Long id, String username, String email, String password, String nome, String cognome, String phone, String photos, byte[] photoMedia, Set<Role> roles, List<Reservation> reservation) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.password = password;
+        this.nome = nome;
+        this.cognome = cognome;
         this.phone = phone;
         this.photos = photos;
         this.photoMedia = photoMedia;
@@ -80,6 +89,9 @@ public class User {
     }
 
     public User(String username, String email, String password, String phone) {
+    }
+
+    public User(String username, String email, String encode, String nome, String cognome) {
     }
 
     public Long getId() {
@@ -105,6 +117,22 @@ public class User {
     }
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public String getCognome() {
+        return cognome;
+    }
+
+    public void setCognome(String cognome) {
+        this.cognome = cognome;
     }
 
     public String getPhone() {
