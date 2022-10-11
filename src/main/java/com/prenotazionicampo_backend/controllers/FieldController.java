@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.ListIterator;
 
 @RestController
 @RequestMapping("/api/v1/fields/")
@@ -30,8 +31,15 @@ public class FieldController {
     private FieldRepository fieldRepository;
     @GetMapping("/list")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public List<Field> getListFields(){
-        return fieldService.findAll();
+    public List<Field> getListFields() throws IOException {
+        List<Field> fields =  fieldService.findAll();
+        for (Field field : fields) {
+            if (field.getPhotos() != null) {
+                File img = new File("/etc/testSpring/field-photos/" + field.getId() + "/" + field.getPhotos());
+                field.setPhotoMedia(FileUtils.readFileToByteArray(img));
+            }
+        }
+        return fields;
     }
 
     @PostMapping("/add")

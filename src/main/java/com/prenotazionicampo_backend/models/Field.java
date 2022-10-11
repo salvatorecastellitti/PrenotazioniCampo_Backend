@@ -1,14 +1,19 @@
 package com.prenotazionicampo_backend.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.extern.log4j.Log4j2;
+import org.apache.commons.io.FileUtils;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.io.File;
+import java.io.IOException;
 import java.util.Set;
 
 @Entity
 @Table(name = "fields")
+@Log4j2
 public class Field {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,7 +38,7 @@ public class Field {
     @JsonIgnore
     private Set<Reservation> reservation;
 
-    public Field() {
+    public Field(){
     }
 
     public Field(Long id, String name, String country, String address, Set<Reservation> reservation) {
@@ -44,15 +49,15 @@ public class Field {
         this.reservation = reservation;
     }
 
-    public Field(Long id, String name, String country, String address, String photos, byte[] photoMedia, Set<Reservation> reservation) {
+    public Field(Long id, String name, String country, String address, String photos, byte[] photoMedia) {
         this.id = id;
         this.name = name;
         this.country = country;
         this.address = address;
         this.photos = photos;
         this.photoMedia = photoMedia;
-        this.reservation = reservation;
     }
+
 
     public Long getId() {
         return id;

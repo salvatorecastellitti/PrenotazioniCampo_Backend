@@ -33,11 +33,11 @@ public class User {
 
     @NotBlank
     @Size(max = 20)
-    private String nome;
+    private String name;
 
     @NotBlank
     @Size(max = 20)
-    private String cognome;
+    private String surname;
     @NotBlank
     @Size(max = 15)
     private String phone;
@@ -74,13 +74,13 @@ public class User {
         this.reservation = reservation;
     }
 
-    public User(Long id, String username, String email, String password, String nome, String cognome, String phone, String photos, byte[] photoMedia, Set<Role> roles, List<Reservation> reservation) {
+    public User(Long id, String username, String email, String password, String name, String surname, String phone, String photos, byte[] photoMedia, Set<Role> roles, List<Reservation> reservation) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.password = password;
-        this.nome = nome;
-        this.cognome = cognome;
+        this.name = name;
+        this.surname = surname;
         this.phone = phone;
         this.photos = photos;
         this.photoMedia = photoMedia;
@@ -91,12 +91,12 @@ public class User {
     public User(String username, String email, String password, String phone) {
     }
 
-    public User(String username, String email, String password, String nome, String cognome, String phone) {
+    public User(String username, String email, String password, String name, String surname, String phone) {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.nome = nome;
-        this.cognome = cognome;
+        this.name = name;
+        this.surname = surname;
         this.phone = phone;
     }
 
@@ -125,20 +125,20 @@ public class User {
         this.password = password;
     }
 
-    public String getNome() {
-        return nome;
+    public String getName() {
+        return name;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getCognome() {
-        return cognome;
+    public String getSurname() {
+        return surname;
     }
 
-    public void setCognome(String cognome) {
-        this.cognome = cognome;
+    public void setSurname(String surname) {
+        this.surname = surname;
     }
 
     public String getPhone() {

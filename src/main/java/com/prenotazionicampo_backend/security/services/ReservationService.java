@@ -18,4 +18,15 @@ public interface ReservationService {
 
     Reservation updateReservation(Reservation reservation);
 
+    List<Reservation> findReservationPerUserAndPerDay(Date sDate, Date eDate, Long userId);
+
+    List<Reservation> findReservationPerUser(Long userId);
+
+    List<Reservation> findReservationPerUserAndPerField(Long userId, Long fieldId);
+
+    List<Reservation> findReservationPerUserAndPerFieldAndDay(Date sDate, Date eDate, Long userId, Long fieldId);
+
+    List<Reservation> findReservationPerDate(Date sDate, Date eDate);
+
+    List<Reservation> findReservationPerField(Long fieldId);
 }

@@ -1,5 +1,6 @@
 package com.prenotazionicampo_backend.controllers;
 import com.prenotazionicampo_backend.exception.ResourceNotFoundException;
+import com.prenotazionicampo_backend.models.Field;
 import com.prenotazionicampo_backend.models.User;
 import com.prenotazionicampo_backend.payload.response.MessageResponse;
 import com.prenotazionicampo_backend.payload.userProfile.ChangePwd;
@@ -8,6 +9,7 @@ import com.prenotazionicampo_backend.repository.UserRepository;
 import com.prenotazionicampo_backend.security.jwt.JwtUtils;
 import com.prenotazionicampo_backend.security.services.UserService;
 import com.prenotazionicampo_backend.util.FileUploadUtil;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +27,7 @@ import java.io.File;
 @RestController
 @RequestMapping("/api/v1/users/")
 @CrossOrigin(origins = "*", maxAge = 3600)
+@Log4j2
 public class UserController {
     @Autowired
     private UserService userService;
@@ -39,17 +42,31 @@ public class UserController {
 
     @GetMapping("/list")
     @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
-    public List<User> getAllUsers(){
-        return userService.findAll();
+    public List<User> getAllUsers() throws IOException {
+        List<User> users = userService.findAll();
+        for (User user : users) {
+            if (user.getPhotos() != null) {
+                File img = new File("/etc/testSpring/field-photos/" + user.getId() + "/" + user.getPhotos());
+                user.setPhotoMedia(FileUtils.readFileToByteArray(img));
+            }
+        }
+        return users;
     }
 
     @GetMapping("/listOther")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public List<User> getOtherUser(HttpServletRequest request){
+    public List<User> getOtherUser(HttpServletRequest request) throws IOException {
         String token = request.getHeader("Authorization").replace("Bearer ", "");
         String id = jwtUtils.getIdNameFromJwtToken(token);
 
-        return userService.findOtherUser(Long.valueOf(id));
+        List<User> users = userService.findOtherUser(Long.valueOf(id));;
+        for (User user : users) {
+            if (user.getPhotos() != null) {
+                File img = new File("/etc/testSpring/field-photos/" + user.getId() + "/" + user.getPhotos());
+                user.setPhotoMedia(FileUtils.readFileToByteArray(img));
+            }
+        }
+        return users;
     }
 
     @GetMapping("/add")
@@ -90,11 +107,11 @@ public class UserController {
         if(profileHolder.getEmail()!=null){
             user.setEmail(profileHolder.getEmail());
         }
-        if(profileHolder.getNome()!=null){
-            user.setNome(profileHolder.getNome());
+        if(profileHolder.getName()!=null){
+            user.setName(profileHolder.getName());
         }
-        if(profileHolder.getCognome()!=null){
-            user.setCognome(profileHolder.getCognome());
+        if(profileHolder.getSurname()!=null){
+            user.setSurname(profileHolder.getSurname());
         }
 
         userService.saveUser(user);
@@ -113,14 +130,15 @@ public class UserController {
         user.setPhotos(filename);
 
         try{
-            String uploadDir = "/etc/testSpring/user-photos/"+ user.getId();
+            String uploadDir = "/etc/testSpring/user-photos/"+user.getId();
             FileUploadUtil.saveFile(uploadDir, filename, multipartFile);
         }catch (Exception e){
+            log.warn(e);
             return ResponseEntity.badRequest().body(new MessageResponse("Impossibile salvare la foto"));
         }
 
         try{
-            userService.updateUser(user);
+            userService.saveUser(user);
             return ResponseEntity.ok(new MessageResponse("Utente aggiornato correttamente"));
         }catch (Exception e){
             return ResponseEntity.badRequest().body(new MessageResponse("Impossibile aggiornare il profilo"));

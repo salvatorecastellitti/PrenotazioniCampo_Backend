@@ -25,22 +25,16 @@ public class Reservation {
     private Date endDate;
 
     @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "user", insertable = false, updatable = false)
-    @JsonIgnore
+    @JoinColumn(name = "user")
     @NotNull
     private User user;
 
-    @Column(name = "user")
-    private Long userId;
 
     @ManyToOne(targetEntity = Field.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "field", insertable = false, updatable = false)
+    @JoinColumn(name = "field")
     @NotNull
-    @JsonIgnore
     private Field field;
 
-    @Column(name = "field")
-    private Long fieldId;
 
     public Reservation() {
     }
@@ -53,15 +47,13 @@ public class Reservation {
         this.field = field;
     }
 
-    public Reservation(Long id, Date startDate, Date endDate, User user, Long userId, Field field, Long fieldId) {
-        this.id = id;
+    public Reservation(Date startDate, Date endDate, User user, Field field) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.user = user;
-        this.userId = userId;
         this.field = field;
-        this.fieldId = fieldId;
     }
+
 
     public Long getId() {
         return id;
@@ -103,19 +95,4 @@ public class Reservation {
         this.field = field;
     }
 
-    public Long getFieldId() {
-        return fieldId;
-    }
-
-    public void setFieldId(Long fieldId) {
-        this.fieldId = fieldId;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
 }

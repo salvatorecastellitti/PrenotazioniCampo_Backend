@@ -6,9 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -44,4 +41,37 @@ public class ReservationServiceImpl implements ReservationService {
     public Reservation updateReservation(Reservation reservation) {
         return reservationRepository.save(reservation);
     }
+
+    @Override
+    public List<Reservation> findReservationPerUserAndPerDay(Date sDate, Date eDate, Long userId) {
+
+        return reservationRepository.findReservationPerUserAndPerDay(sDate, eDate, userId);
+    }
+
+    @Override
+    public List<Reservation> findReservationPerUser(Long userId) {
+        return reservationRepository.findReservationPerUser(userId);
+    }
+
+    @Override
+    public List<Reservation> findReservationPerUserAndPerField(Long userId, Long fieldId) {
+        return reservationRepository.findReservationPerUserAndPerField(userId,fieldId);
+    }
+
+    @Override
+    public List<Reservation> findReservationPerUserAndPerFieldAndDay(Date sDate, Date eDate, Long userId, Long fieldId) {
+        return reservationRepository.findReservationPerUserAndPerFieldAndDay(sDate, eDate, userId,fieldId);
+    }
+
+    @Override
+    public List<Reservation> findReservationPerDate(Date sDate, Date eDate) {
+        return reservationRepository.findReservationPerDate(sDate,eDate);
+    }
+
+    @Override
+    public List<Reservation> findReservationPerField(Long fieldId) {
+        return reservationRepository.findReservationPerField(fieldId);
+    }
+
+
 }

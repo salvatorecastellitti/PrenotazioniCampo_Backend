@@ -10,6 +10,6 @@ public class ProfileHolder {
     String username;
     String email;
     String phone;
-    String nome;
-    String cognome;
+    String name;
+    String surname;
 }
