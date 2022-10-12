@@ -4,9 +4,11 @@ import com.prenotazionicampo_backend.exception.ResourceNotFoundException;
 import com.prenotazionicampo_backend.models.Field;
 import com.prenotazionicampo_backend.payload.response.MessageResponse;
 import com.prenotazionicampo_backend.payload.userProfile.FieldHolder;
+import com.prenotazionicampo_backend.payload.userProfile.PhotoHolder;
 import com.prenotazionicampo_backend.repository.FieldRepository;
 import com.prenotazionicampo_backend.security.services.FieldService;
 import com.prenotazionicampo_backend.util.FileUploadUtil;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,12 +19,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.List;
 import java.util.ListIterator;
 
 @RestController
 @RequestMapping("/api/v1/fields/")
 @CrossOrigin(origins = "*", maxAge = 3600)
+@Log4j2
 public class FieldController {
     @Autowired
     private FieldService fieldService;
@@ -66,22 +70,26 @@ public class FieldController {
 
     @PostMapping("/changePhoto/{id}")
     @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<?> changePhoto(@RequestParam("image") MultipartFile multipartFile, @PathVariable Long id) throws IOException {
-        String filename = StringUtils.cleanPath(multipartFile.getOriginalFilename());
+    public ResponseEntity<?> changePhoto(@RequestBody PhotoHolder photoHolder, @PathVariable Long id) throws IOException {
+        String filename = StringUtils.cleanPath(photoHolder.getImageName());
         Field field = fieldService.findById(Long.valueOf(id)).orElseThrow(()-> new ResourceNotFoundException("Field not found with id: "+id));
         field.setPhotos(filename);
 
         try{
+            String photoMedia = photoHolder.getImage().substring(photoHolder.getImage().indexOf(",")+1);
+            byte[] imageByte= Base64.getDecoder().decode(photoMedia);
             String uploadDir = "/etc/testSpring/field-photos/"+field.getId();
-            FileUploadUtil.saveFile(uploadDir, filename, multipartFile);
+            FileUploadUtil.saveFile(uploadDir, filename, imageByte);
         }catch (Exception e){
-            return ResponseEntity.badRequest().body(new MessageResponse("Impossibile salvare la foto"));
+            log.error(e);
+            return ResponseEntity.badRequest().body(new MessageResponse("Impossibile salvare la foto",400));
         }
         try{
             fieldService.saveField(field);
-            return ResponseEntity.ok(new MessageResponse("Foto aggiunta correttamente"));
+            return ResponseEntity.ok(new MessageResponse("Foto aggiunta correttamente",200));
         }catch (Exception e){
-            return ResponseEntity.badRequest().body(new MessageResponse("Impossibile aggiornare la foto"));
+            log.error(e);
+            return ResponseEntity.badRequest().body(new MessageResponse("Impossibile aggiornare la foto", 400));
         }
 
 
@@ -89,7 +97,7 @@ public class FieldController {
     @GetMapping("/get/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public ResponseEntity<Field> getFieldById(@PathVariable Long id) throws IOException {
-        Field field = fieldService.findById(id).orElseThrow(()-> new ResourceNotFoundException("Field not found with id: "+id));
+        Field field = fieldService.findById(id).orElseThrow(()-> new ResourceNotFoundException("Campo non trovato con id: "+id));
         if(field.getPhotos()!= null){
             File img = new File("/etc/testSpring/field-photos/" + field.getId() + "/" + field.getPhotos());
             field.setPhotoMedia(FileUtils.readFileToByteArray(img));
@@ -100,9 +108,9 @@ public class FieldController {
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
     public ResponseEntity<?> deleteField(@PathVariable Long id){
-        Field field = fieldService.findById(id).orElseThrow(()-> new ResourceNotFoundException("Field not found with id: "+id));
+        Field field = fieldService.findById(id).orElseThrow(()-> new ResourceNotFoundException("Campo non trovato con id: "+id));
         fieldRepository.delete(field);
-        return ResponseEntity.ok(new MessageResponse("Campo eliminato correttamente"));
+        return ResponseEntity.ok(new MessageResponse("Campo eliminato correttamente",200));
     }
 
 

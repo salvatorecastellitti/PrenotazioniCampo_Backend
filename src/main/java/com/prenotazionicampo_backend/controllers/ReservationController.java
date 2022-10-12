@@ -81,30 +81,9 @@ public class ReservationController {
             }else{
                 eDate = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(reservationTemplateForGet.getEndDate() + " 23:59");
             }
-            log.info(sDate);
-            log.info(eDate);
-/*
-            if (reservationTemplateForGet.getEndDate() == null) {
-                if(reservationTemplateForGet.getStartDate().length()>11){
-                    sDate = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(reservationTemplateForGet.getStartDate());
-                    eDate = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(reservationTemplateForGet.getStartDate());
-                }else{
-                    sDate = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(reservationTemplateForGet.getStartDate() + " 00:01");
-                    eDate = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(reservationTemplateForGet.getStartDate() + " 23:59");
-                }
 
-            } else {
-                if(reservationTemplateForGet.getEndDate().length()>11) {
-                    sDate = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(reservationTemplateForGet.getStartDate());
-                    eDate = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(reservationTemplateForGet.getEndDate());
-                }else{
-                    sDate = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(reservationTemplateForGet.getStartDate() + " 00:01");
-                    eDate = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(reservationTemplateForGet.getEndDate() + " 23:59");
-                }
-
-            }*/
             if (eDate.before(sDate)) {
-                throw new InvalidDateException("EndDate: " + eDate + " can't be greater than StartDate: " + sDate);
+                return ResponseEntity.badRequest().body(new MessageResponse("La data di fine non può essere maggiore della data di inzio",400));
             }
         }
 
@@ -126,7 +105,7 @@ public class ReservationController {
         }else if(reservationTemplateForGet.getFieldId()!=null && reservationTemplateForGet.getUserId()==null && reservationTemplateForGet.getStartDate()==null){
             reservations = reservationService.findReservationPerField(reservationTemplateForGet.getFieldId());
         }else{
-            return ResponseEntity.badRequest().body(new MessageResponse("Qualcosa è andato storto, riprova"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Qualcosa è andato storto, riprova",400));
         }
 
 
@@ -136,123 +115,36 @@ public class ReservationController {
         return ResponseEntity.ok(reservations);
 
     }
-    /*
-    @GetMapping("/getAllPerDayAndField")
-    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<?> getReservationByDay(@RequestBody ReservationTemplateForGet reservationTemplateForGet){
-        Date eDate;
-        Date sDate;
-        try{
-            if(reservationTemplateForGet.getEndDate() == null){
-                sDate = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(reservationTemplateForGet.getStartDate()+" 00:01");
-                eDate = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(reservationTemplateForGet.getStartDate()+" 23:59");
-
-            }else{
-                sDate = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(reservationTemplateForGet.getStartDate()+" 00:01");
-                eDate = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(reservationTemplateForGet.getEndDate()+" 23:59");
-            }
-            if (eDate.before(sDate)){
-                throw new InvalidDateException("EndDate: " + eDate + " can't be greater than StartDate: " + sDate);
-            }
-            return ResponseEntity.ok(reservationService.getReservationByDateAndField(sDate, eDate, reservationTemplateForGet.getFieldId()));
-        }catch (java.text.ParseException e){
-            throw new InvalidDateException("Error parsing value: " + reservationTemplateForGet.getStartDate() + " date format required: 'gg/MM/yyyy'");
-        }
-    }
-
-    @GetMapping("/getPerUserAndPerDay")
-    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<?> findReservationPerUserAndPerDay(@RequestBody ReservationTemplateForGet reservationTemplateForGet){
-        Date eDate;
-        Date sDate;
-        try{
-            if(reservationTemplateForGet.getEndDate() == null){
-                sDate = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(reservationTemplateForGet.getStartDate()+" 00:01");
-                eDate = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(reservationTemplateForGet.getStartDate()+" 23:59");
-
-            }else{
-                sDate = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(reservationTemplateForGet.getStartDate()+" 00:01");
-                eDate = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(reservationTemplateForGet.getEndDate()+" 23:59");
-            }
-            if (eDate.before(sDate)){
-                throw new InvalidDateException("EndDate: " + eDate + " can't be greater than StartDate: " + sDate);
-            }
-            return ResponseEntity.ok(reservationService.findReservationPerUserAndPerDay(sDate, eDate, reservationTemplateForGet.getUserId()));
-        }catch (java.text.ParseException e){
-            throw new InvalidDateException("Error parsing value: " + reservationTemplateForGet.getStartDate() + " date format required: 'gg/MM/yyyy'");
-        }
-    }
-    @GetMapping("/getAllPerUserId/{userId}")
-    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<?> findReservationPerUserId(@PathVariable Long userId) {
-        List<Reservation> reservations = reservationService.findReservationPerUser(userId);
-        for(Reservation reservation: reservations){
-            reservation.setUser(null);
-        }
-        return ResponseEntity.ok(reservations);
-    }
-
-
-    @GetMapping("/getAllPerUserAndField")
-    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<?> findReservationPerUserAndPerField(@RequestBody ReservationTemplateForGet reservationTemplateForGet){
-        return ResponseEntity.ok(reservationService.findReservationPerUserAndPerField(reservationTemplateForGet.getUserId(), reservationTemplateForGet.getFieldId()));
-    }
-
-    @GetMapping("/getAllPerUserAndFieldAndDay")
-    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<?> finReservationPerUserPerFieldAndPerDay(@RequestBody ReservationTemplateForGet reservationTemplateForGet){
-        Date eDate;
-        Date sDate;
-        try{
-            if(reservationTemplateForGet.getEndDate() == null){
-                sDate = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(reservationTemplateForGet.getStartDate()+" 00:01");
-                eDate = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(reservationTemplateForGet.getStartDate()+" 23:59");
-
-            }else{
-                sDate = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(reservationTemplateForGet.getStartDate()+" 00:01");
-                eDate = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(reservationTemplateForGet.getEndDate()+" 23:59");
-            }
-            if (eDate.before(sDate)){
-                throw new InvalidDateException("EndDate: " + eDate + " can't be greater than StartDate: " + sDate);
-            }
-            return ResponseEntity.ok(reservationService.findReservationPerUserAndPerFieldAndDay(sDate, eDate, reservationTemplateForGet.getUserId(), reservationTemplateForGet.getFieldId()));
-        }catch (java.text.ParseException e){
-            throw new InvalidDateException("Error parsing value: " + reservationTemplateForGet.getStartDate() + " date format required: 'gg/MM/yyyy'");
-        }
-
-    }
-*/
     //devo procare a creare un pyload per la add, e poi nelle get restituire tutto
     @PostMapping("/add")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public ResponseEntity<?> createReservation(@RequestBody ReservationHolder reservationHolder){
-        User user = userService.findById(reservationHolder.getUserId()).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + reservationHolder.getUserId()));
-        Field field = fieldService.findById(reservationHolder.getFieldId()).orElseThrow(() -> new ResourceNotFoundException("Field not found with id: " + reservationHolder.getFieldId()));
+        User user = userService.findById(reservationHolder.getUserId()).orElseThrow(() -> new ResourceNotFoundException("Utente non trovato per id: " + reservationHolder.getUserId()));
+        Field field = fieldService.findById(reservationHolder.getFieldId()).orElseThrow(() -> new ResourceNotFoundException("Campo non trovato per id: " + reservationHolder.getFieldId()));
 
         Reservation reservation = new Reservation(reservationHolder.getStartDate(), reservationHolder.getEndDate(), user,field);
         if(reservation.getEndDate().before(reservation.getStartDate())){
-            throw new InvalidDateException("EndDate: " + reservation.getEndDate() + " can't be greater than StartDate: " + reservation.getStartDate());
+            return ResponseEntity.badRequest().body(new MessageResponse("La data di fine non può essere maggiore della data di inzio",400));
         }
         reservationRepository.save(reservation);
-        return ResponseEntity.ok("Reservation correctly added for username: '" + reservation.getUser().getUsername() + "' on field: '" + reservation.getField().getName()+"'");
+        return ResponseEntity.ok(new MessageResponse("Prenotazione aggiunta per utente: "+ reservation.getUser().getUsername() + " per il campo " +   reservation.getField().getName()));
     }
 
     @PostMapping("/update")
     @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
     public ResponseEntity<?> updateReservation(@RequestBody Reservation reservation){
         if(reservation.getEndDate().before(reservation.getStartDate())){
-            throw new InvalidDateException("EndDate: " + reservation.getEndDate() + " can't be greater than StartDate: " + reservation.getStartDate());
+            return ResponseEntity.badRequest().body(new MessageResponse("La data di fine non può essere maggiore della data di inzio",400));
         }
         reservationService.updateReservation(reservation);
-        return ResponseEntity.ok("Reservation updated");
+        return ResponseEntity.ok(new MessageResponse("Prenotazione aggiornata",200));
     }
 
 
     @GetMapping("/get/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public ResponseEntity<?> getReservationById(@PathVariable Long id) throws IOException {
-        Reservation reservation = reservationService.findById(id).orElseThrow(()->new ResourceNotFoundException("Reservation not found with id: "+id));
+        Reservation reservation = reservationService.findById(id).orElseThrow(()->new ResourceNotFoundException("Prenotazione non trovata per id: "+id));
         setPhoto(reservation);
 
         return  ResponseEntity.ok(reservation);
@@ -260,14 +152,12 @@ public class ReservationController {
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<Map<String, Boolean>> deleteReservation(@PathVariable Long id){
+    public ResponseEntity<?> deleteReservation(@PathVariable Long id){
         Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundException("Reservation not exist with id :" + id ));
+                .orElseThrow(()-> new ResourceNotFoundException("Prenotazione non trovata con id:" + id ));
 
         reservationRepository.delete(reservation);
-        Map<String,Boolean> response = new HashMap<>();
-        response.put("deleted", Boolean.TRUE);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new MessageResponse("Prenotazione eliminata",200));
     }
 
     private void setPhoto(Reservation reservation) throws IOException {
