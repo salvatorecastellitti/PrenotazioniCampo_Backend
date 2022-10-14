@@ -1,11 +1,14 @@
 package com.prenotazionicampo_backend.controllers;
 import com.prenotazionicampo_backend.exception.ResourceNotFoundException;
-import com.prenotazionicampo_backend.models.Field;
+import com.prenotazionicampo_backend.models.ERole;
+import com.prenotazionicampo_backend.models.Role;
 import com.prenotazionicampo_backend.models.User;
+import com.prenotazionicampo_backend.payload.request.SignupRequest;
 import com.prenotazionicampo_backend.payload.response.MessageResponse;
 import com.prenotazionicampo_backend.payload.userProfile.ChangePwd;
 import com.prenotazionicampo_backend.payload.userProfile.PhotoHolder;
 import com.prenotazionicampo_backend.payload.userProfile.ProfileHolder;
+import com.prenotazionicampo_backend.repository.RoleRepository;
 import com.prenotazionicampo_backend.repository.UserRepository;
 import com.prenotazionicampo_backend.security.jwt.JwtUtils;
 import com.prenotazionicampo_backend.security.services.UserService;
@@ -13,16 +16,11 @@ import com.prenotazionicampo_backend.util.FileUploadUtil;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServletRequest;
@@ -30,8 +28,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Base64;
+import java.util.HashSet;
 import java.util.List;
 import java.io.File;
+import java.util.Set;
 
 @MultipartConfig
 @RestController
@@ -50,13 +50,16 @@ public class UserController {
     @Autowired
     PasswordEncoder encoder;
 
+    @Autowired
+    RoleRepository roleRepository;
+
     @GetMapping("/list")
     @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
     public List<User> getAllUsers() throws IOException {
         List<User> users = userService.findAll();
         for (User user : users) {
             if (user.getPhotos() != null) {
-                File img = new File("/etc/testSpring/field-photos/" + user.getId() + "/" + user.getPhotos());
+                File img = new File("/etc/testSpring/user-photos/" + user.getId() + "/" + user.getPhotos());
                 user.setPhotoMedia(FileUtils.readFileToByteArray(img));
             }
         }
@@ -72,18 +75,66 @@ public class UserController {
         List<User> users = userService.findOtherUser(Long.valueOf(id));;
         for (User user : users) {
             if (user.getPhotos() != null) {
-                File img = new File("/etc/testSpring/field-photos/" + user.getId() + "/" + user.getPhotos());
+                File img = new File("/etc/testSpring/user-photos/" + user.getId() + "/" + user.getPhotos());
                 user.setPhotoMedia(FileUtils.readFileToByteArray(img));
             }
         }
         return users;
     }
 
-    @GetMapping("/add")
+    @PostMapping("/add")
     @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<?> addUser(@RequestBody User user){
-        userService.saveUser(user);
-        return ResponseEntity.ok(new MessageResponse("Utente aggiunto correttamente",200));
+    public ResponseEntity<?> addUser(@RequestBody SignupRequest signUpRequest){
+        if (signUpRequest.getName().isEmpty() || signUpRequest.getSurname().isEmpty() || signUpRequest.getEmail().isEmpty() || signUpRequest.getPassword().isEmpty() || signUpRequest.getPhone().isEmpty() || signUpRequest.getUsername().isEmpty()){
+            return ResponseEntity.badRequest().body(new MessageResponse("Errore! Assicurati che non ci siano campi incompleti",400));
+        }
+        if (userRepository.existsByUsername(signUpRequest.getUsername())) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Errore: Username già in uso!", 400));
+        }
+        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Errore: Email già in uso!", 400));
+        }
+        // Create new user's account
+        User user = new User(signUpRequest.getUsername(),
+                signUpRequest.getEmail(),
+                encoder.encode(signUpRequest.getPassword()),
+                signUpRequest.getName(),
+                signUpRequest.getSurname(),
+                signUpRequest.getPhone());
+        Set<String> strRoles = signUpRequest.getRole();
+        Set<Role> roles = new HashSet<>();
+        if (strRoles == null) {
+            Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                    .orElseThrow(() -> new RuntimeException("Errore: Ruolo non trovato"));
+            roles.add(userRole);
+        } else {
+            strRoles.forEach(role -> {
+                switch (role) {
+                    case "admin":
+                        Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
+                                .orElseThrow(() -> new RuntimeException("Errore: Ruolo non trovato"));
+                        roles.add(adminRole);
+                        break;
+                    case "mod":
+                        Role modRole = roleRepository.findByName(ERole.ROLE_MODERATOR)
+                                .orElseThrow(() -> new RuntimeException("Errore: Ruolo non trovato"));
+                        roles.add(modRole);
+                        break;
+                    default:
+                        Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                                .orElseThrow(() -> new RuntimeException("Errore: Ruolo non trovato"));
+                        roles.add(userRole);
+                }
+            });
+        }
+        user.setRoles(roles);
+        userRepository.save(user);
+        return ResponseEntity.ok(new MessageResponse("Utente registrato correttamente",200));
+
     }
 
     @DeleteMapping("delete/{id}")

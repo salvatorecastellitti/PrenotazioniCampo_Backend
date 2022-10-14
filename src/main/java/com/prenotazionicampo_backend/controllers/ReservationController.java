@@ -61,56 +61,57 @@ public class ReservationController {
     }
 
 
-    @GetMapping("/getReservationWithFilter")
+    @PostMapping("/getReservationWithFilter")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public ResponseEntity<?> getReservationWithFilter(@RequestBody ReservationTemplateForGet reservationTemplateForGet) throws ParseException, IOException {
         Date eDate = null;
         Date sDate = null;
         List<Reservation> reservations;
-        if(reservationTemplateForGet.getStartDate()!=null) {
-            if(reservationTemplateForGet.getStartDate().length()>11) {
+        if (reservationTemplateForGet.getStartDate() != null) {
+            if (reservationTemplateForGet.getStartDate().length() > 11) {
                 sDate = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(reservationTemplateForGet.getStartDate());
-            }else{
+            } else {
                 sDate = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(reservationTemplateForGet.getStartDate() + " 00:01");
             }
 
-            if(reservationTemplateForGet.getEndDate()==null){
-                eDate = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(reservationTemplateForGet.getStartDate().substring(0,11) + " 23:59");
-            } else if (reservationTemplateForGet.getEndDate().length()>11) {
+            if (reservationTemplateForGet.getEndDate() == null) {
+                eDate = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(reservationTemplateForGet.getStartDate().substring(0, 11) + " 23:59");
+            } else if (reservationTemplateForGet.getEndDate().length() > 11) {
                 eDate = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(reservationTemplateForGet.getEndDate());
-            }else{
+            } else {
                 eDate = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(reservationTemplateForGet.getEndDate() + " 23:59");
             }
 
             if (eDate.before(sDate)) {
-                return ResponseEntity.badRequest().body(new MessageResponse("La data di fine non può essere maggiore della data di inzio",400));
+                return ResponseEntity.badRequest().body(new MessageResponse("La data di fine non può essere maggiore della data di inzio", 400));
             }
         }
 
-        if(reservationTemplateForGet.getUserId() == null && reservationTemplateForGet.getStartDate()!=null && reservationTemplateForGet.getFieldId()!=null){
+        if (reservationTemplateForGet.getUserId() == null && reservationTemplateForGet.getStartDate() != null && reservationTemplateForGet.getFieldId() != null) {
             reservations = reservationService.getReservationByDateAndField(sDate, eDate, reservationTemplateForGet.getFieldId());
-        }
-        else if(reservationTemplateForGet.getUserId() != null && reservationTemplateForGet.getStartDate()!=null && reservationTemplateForGet.getFieldId()==null){
+        } else if (reservationTemplateForGet.getUserId() != null && reservationTemplateForGet.getStartDate() != null && reservationTemplateForGet.getFieldId() == null) {
             reservations = reservationService.findReservationPerUserAndPerDay(sDate, eDate, reservationTemplateForGet.getUserId());
-        }
-        else if(reservationTemplateForGet.getUserId() != null && reservationTemplateForGet.getStartDate()==null && reservationTemplateForGet.getFieldId()==null){
+        } else if (reservationTemplateForGet.getUserId() != null && reservationTemplateForGet.getStartDate() == null && reservationTemplateForGet.getFieldId() == null) {
             reservations = reservationService.findReservationPerUser(reservationTemplateForGet.getUserId());
-        }else if(reservationTemplateForGet.getUserId() != null && reservationTemplateForGet.getStartDate()==null && reservationTemplateForGet.getFieldId()!=null){
+        } else if (reservationTemplateForGet.getUserId() != null && reservationTemplateForGet.getStartDate() == null && reservationTemplateForGet.getFieldId() != null) {
             reservations = reservationService.findReservationPerUserAndPerField(reservationTemplateForGet.getUserId(), reservationTemplateForGet.getFieldId());
 
-        }else if(reservationTemplateForGet.getUserId() != null && reservationTemplateForGet.getStartDate()!=null && reservationTemplateForGet.getFieldId()!=null) {
+        } else if (reservationTemplateForGet.getUserId() != null && reservationTemplateForGet.getStartDate() != null && reservationTemplateForGet.getFieldId() != null) {
             reservations = reservationService.findReservationPerUserAndPerFieldAndDay(sDate, eDate, reservationTemplateForGet.getUserId(), reservationTemplateForGet.getFieldId());
-        }else if(reservationTemplateForGet.getFieldId()==null && reservationTemplateForGet.getUserId()==null && reservationTemplateForGet.getStartDate()!=null){
-            reservations = reservationService.findReservationPerDate(sDate,eDate);
-        }else if(reservationTemplateForGet.getFieldId()!=null && reservationTemplateForGet.getUserId()==null && reservationTemplateForGet.getStartDate()==null){
+        } else if (reservationTemplateForGet.getFieldId() == null && reservationTemplateForGet.getUserId() == null && reservationTemplateForGet.getStartDate() != null) {
+            reservations = reservationService.findReservationPerDate(sDate, eDate);
+        } else if (reservationTemplateForGet.getFieldId() != null && reservationTemplateForGet.getUserId() == null && reservationTemplateForGet.getStartDate() == null) {
             reservations = reservationService.findReservationPerField(reservationTemplateForGet.getFieldId());
-        }else{
-            return ResponseEntity.badRequest().body(new MessageResponse("Qualcosa è andato storto, riprova",400));
+        } else {
+            return ResponseEntity.badRequest().body(new MessageResponse("Qualcosa è andato storto, riprova", 400));
         }
 
+        if (reservationTemplateForGet.getShowImage() == null || !reservationTemplateForGet.getShowImage()){
 
-        for (Reservation reservation: reservations){
-            setPhoto(reservation);
+        }else{
+            for (Reservation reservation: reservations){
+                setPhoto(reservation);
+            }
         }
         return ResponseEntity.ok(reservations);
 
@@ -127,7 +128,7 @@ public class ReservationController {
             return ResponseEntity.badRequest().body(new MessageResponse("La data di fine non può essere maggiore della data di inzio",400));
         }
         reservationRepository.save(reservation);
-        return ResponseEntity.ok(new MessageResponse("Prenotazione aggiunta per utente: "+ reservation.getUser().getUsername() + " per il campo " +   reservation.getField().getName()));
+        return ResponseEntity.ok(new MessageResponse("Prenotazione aggiunta per utente: "+ reservation.getUser().getUsername() + " per il campo " +   reservation.getField().getName(),200));
     }
 
     @PostMapping("/update")

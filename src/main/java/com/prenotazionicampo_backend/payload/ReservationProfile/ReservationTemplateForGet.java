@@ -10,4 +10,5 @@ public class ReservationTemplateForGet {
     String endDate;
     Long userId;
     Long fieldId;
+    Boolean showImage;
 }

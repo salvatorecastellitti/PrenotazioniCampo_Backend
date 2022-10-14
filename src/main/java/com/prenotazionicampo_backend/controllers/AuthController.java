@@ -61,6 +61,9 @@ public class AuthController {
     }
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+        if (signUpRequest.getName().isEmpty() || signUpRequest.getSurname().isEmpty() || signUpRequest.getEmail().isEmpty() || signUpRequest.getPassword().isEmpty() || signUpRequest.getPhone().isEmpty() || signUpRequest.getUsername().isEmpty()){
+            return ResponseEntity.badRequest().body(new MessageResponse("Errore! Assicurati che non ci siano campi incompleti",400));
+        }
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity
                     .badRequest()
@@ -75,8 +78,8 @@ public class AuthController {
         User user = new User(signUpRequest.getUsername(),
                 signUpRequest.getEmail(),
                 encoder.encode(signUpRequest.getPassword()),
-                signUpRequest.getNome(),
-                signUpRequest.getCognome(),
+                signUpRequest.getName(),
+                signUpRequest.getSurname(),
                 signUpRequest.getPhone());
         Set<String> strRoles = signUpRequest.getRole();
         Set<Role> roles = new HashSet<>();
