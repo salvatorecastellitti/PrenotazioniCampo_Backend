@@ -1,8 +1,6 @@
 # PrenotazioniCampo_Backend
 Backend for reservation sport's field
 
-Per l'asino di Alex, segui le istruzioni per dockerizzare il back end.</br>
-
 1. Pull dell'immagine di mysql da docker hub</br>
   docker pull mysql:5.7</br>
   [se ti da errore per architettura arm] docker pull --platform linux/x86_64 mysql:5.7</br>
@@ -37,6 +35,3 @@ Per l'asino di Alex, segui le istruzioni per dockerizzare il back end.</br>
   docker run --network prenotazioni-pt --name prenotazioniBE --mount source=testSpring,target=/etc/testSpring -p 8080:8080 -d prenotazioni-pt
 </br>
 
-🥳 Congratulazioni, ora puoi fare quello che vuoi con le api, sempre chiamandole da http://localhost:8080/ 🥳</br>
-
-Per qualsiasi dubbio o altro, contattarmi preferibilmente quando non dormo</br>
